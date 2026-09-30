@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List TypeScript</title>
+  </head>
+  <body>
+    <main class="container">
+      <h1>To-Do List</h1>
+      <form id="todo-form">
+        <input
+          id="todo-input"
+          type="text"
+          placeholder="Tulis tugas baru..."
+          autocomplete="off"
+        />
+        <button type="submit">Tambah</button>
+      </form>
+
+      <!-- Tombol Filter Status (Latihan Lanjutan 10.2) -->
+      <div id="filter-bar">
+        <button data-filter="semua">Semua</button>
+        <button data-filter="aktif">Aktif</button>
+        <button data-filter="selesai">Selesai</button>
+      </div>
+
+      <ul id="todo-list"></ul>
+      <br>
+      <div id="todo-stats">
+        <span id="jumlah-tersisa">0 tugas tersisa</span>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
