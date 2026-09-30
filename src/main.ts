@@ -9,18 +9,26 @@ interface Todo {
 
 type FilterStatus = "semua" | "aktif" | "selesai";
 
-let filterAktif: FilterStatus = "semua";
-let todos: Todo[] = muatDariStorage();
-
 // 2. Ambil Elemen DOM
 const form = document.getElementById("todo-form") as HTMLFormElement;
 const input = document.getElementById("todo-input") as HTMLInputElement;
 const list = document.getElementById("todo-list") as HTMLUListElement;
 const stat = document.getElementById("jumlah-tersisa") as HTMLSpanElement;
+const filterBar = document.getElementById("filter-bar") as HTMLDivElement;
 const tombolFilter =
   document.querySelectorAll<HTMLButtonElement>("#filter-bar button");
 
-// 3. Fungsi Penyimpanan (localStorage) dengan Validasi & Type Predicate
+let tombolHapusSelesai = document.getElementById(
+  "btn-hapus-selesai",
+) as HTMLButtonElement;
+
+if (!tombolHapusSelesai) {
+  tombolHapusSelesai = document.createElement("button");
+  tombolHapusSelesai.id = "btn-hapus-selesai";
+  tombolHapusSelesai.textContent = "Hapus yang Selesai";
+  filterBar.appendChild(tombolHapusSelesai);
+}
+
 const KUNCI_STORAGE = "todos";
 
 function simpanKeStorage(): void {
@@ -47,6 +55,9 @@ function muatDariStorage(): Todo[] {
     return [];
   }
 }
+
+let filterAktif: FilterStatus = "semua";
+let todos: Todo[] = muatDariStorage();
 
 // 4. Logika Aplikasi (Aksi Todo)
 function tambahTodo(teks: string): void {
@@ -82,13 +93,36 @@ function hapusTodo(id: number): void {
   render();
 }
 
+function hapusSemua(): void {
+  todos = todos.filter((todo) => !todo.selesai);
+  simpanKeStorage();
+  render();
+}
+
 // 5. Menampilkan Data ke Layar (Render)
 function render(): void {
   list.innerHTML = "";
 
+  // Update statistik jumlah tugas tersisa
   const jumlahTugas = todos.filter((todo) => !todo.selesai).length;
-  stat.textContent = `${jumlahTugas} tugas tersisa`;
+  if (stat) {
+    stat.textContent = `${jumlahTugas} tugas tersisa`;
+  }
 
+  // Tampilkan / sembunyikan tombol hapus selesai
+  const adaYangSelesai = todos.some((todo) => todo.selesai);
+  tombolHapusSelesai.style.display = adaYangSelesai ? "inline-block" : "none";
+
+  // PERBAIKAN BUG 2: Highlight tombol filter yang sedang aktif
+  tombolFilter.forEach((tombol) => {
+    if (tombol.dataset.filter === filterAktif) {
+      tombol.classList.add("active");
+    } else {
+      tombol.classList.remove("active");
+    }
+  });
+
+  // Filter daftar yang akan ditampilkan
   const todosTampil = todos.filter((todo) => {
     if (filterAktif === "aktif") return !todo.selesai;
     if (filterAktif === "selesai") return todo.selesai;
@@ -131,7 +165,10 @@ function render(): void {
   });
 }
 
-// 6. Event Listeners
+tombolHapusSelesai.addEventListener("click", () => {
+  hapusSemua();
+});
+
 form.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
   const teks = input.value.trim();
